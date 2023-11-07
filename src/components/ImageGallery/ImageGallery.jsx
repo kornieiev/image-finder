@@ -1,13 +1,13 @@
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import React from 'react';
-import css from './ImageGallery.module.css';
+import { GalleryList } from './ImageGallery.styled';
 
 export default function ImageGallery({ images, onClick }) {
   return (
-    <div>
-      <ul className={css.imageGallery}>
+    <>
+      <GalleryList>
         <ImageGalleryItem images={images} onClick={onClick} />
-      </ul>
-    </div>
+      </GalleryList>
+    </>
   );
 }

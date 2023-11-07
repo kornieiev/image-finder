@@ -1,19 +1,18 @@
 import React from 'react';
-import css from './ImageGalleryItem.module.css';
+import { GalleryItem, ImageItem } from './ImageGalleryItem.styled';
 
 export default function ImageGalleryItem({ images, onClick }) {
   return (
     <>
       {images.map(item => {
         return (
-          <li className={css.galleryItem} key={item.id}>
-            <img
-              className={css.imageItem}
+          <GalleryItem key={item.id}>
+            <ImageItem
               src={item.webformatURL}
               onClick={() => onClick(item.largeImageURL)}
               alt=""
             />
-          </li>
+          </GalleryItem>
         );
       })}
     </>

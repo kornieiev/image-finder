@@ -1,12 +1,12 @@
 import React from 'react';
-import css from './Button.module.css';
+import { ButtonAddMore } from './Button.styled';
 
 export default function Button({ onClick, children }) {
   return (
     <>
-      <button className={css.button} onClick={onClick} type="button">
+      <ButtonAddMore onClick={onClick} type="button">
         {children}
-      </button>
+      </ButtonAddMore>
     </>
   );
 }
