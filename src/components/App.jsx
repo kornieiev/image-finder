@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Loader from 'components/Loader/Loader';
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -9,140 +9,111 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import Modal from './Modal/Modal';
 import Button from './Button/Button';
 import fetchPhotos from '../components/services/searchPhoto-api';
-import css from './App.module.css';
+import { GeneralWrap } from './App.styled';
 
-export class App extends Component {
-  state = {
-    inputValue: '', // значение ввода инпута
-    loading: false, // статус отображения загружчика
-    images: [], // данные из Api
-    error: null, // статус ошибки
-    showModal: false, // статус отображения модалки
-    largeImageURL: 0, // id выбранного фото
-    totalPhotos: 0, // всего фото в коллекции
-    showLoadMore: false, // статус отображения кнопки LoadMore
-    page: 1, // страница загрузки с Api
-  };
+export default function App() {
+  const [inputValue, setInputValue] = useState(''); // значение ввода инпута
+  const [loading, setLoading] = useState(false); // статус отображения загружчика
+  const [images, setImages] = useState([]); // данные из Api
+  const [error, setError] = useState(null); // статус ошибки
+  const [showModal, setShowModal] = useState(false); // статус отображения модалки
+  const [largeImageURL, setLargeImageURL] = useState(0); // id выбранного фото
+  const [totalPhotos, setTotalPhotos] = useState(0); // всего фото в коллекции
+  const [page, setPage] = useState(1); // страница загрузки с Api
 
-  componentDidUpdate(_, prevState) {
-    const prevSearch = prevState.inputValue;
-    const nextSearch = this.state.inputValue;
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
+  /////////////////////////////////////////////
 
-    if (prevSearch !== nextSearch || prevPage !== nextPage) {
-      this.setState({
-        loading: true,
-        showLoadMore: false,
-      });
-      fetchPhotos(nextSearch, nextPage)
+  const prevInputValueRef = useRef();
+  const prevPageRef = useRef();
+  const prevImagesRef = useRef();
+
+  /////////////////////////////////////////////
+
+  useEffect(() => {
+    if (inputValue === '') {
+      return;
+    } else if (
+      inputValue !== prevInputValueRef.current ||
+      page !== prevPageRef.current
+    ) {
+      setLoading(true);
+      fetchPhotos(inputValue, page)
         .then(data => {
-          this.setState({ totalPhotos: data.total });
+          setTotalPhotos(data.total);
           if (data.total < 1) {
-            this.setState({ error: true });
+            setError(true);
             toast.info('УПС! 🫤 Відсутні фото за Вашим пошуком 🤷🏻');
           } else {
-            this.setState(prevState => ({
-              images: [...prevState.images, ...data.hits],
-              totalPhotos: data.total,
-              loading: false,
-            }));
-
-            if (data.hits.length >= data.total) {
-            } else {
-              this.toggleLoadMore();
-            }
+            setImages([...prevImagesRef.current, ...data.hits]);
+            setTotalPhotos(data.total);
+            setLoading(false);
           }
         })
         .catch(error => {
           console.log(error);
           console.error('There was a problem with the fetch operation:', error);
-          this.setState({ error });
+          setError({ error });
         })
         .finally(() => {
-          this.setState({
-            loading: false,
-          });
+          setLoading(false);
         });
+    } else {
     }
-  }
-  toggleLoadMore = () => {
-    this.setState(({ showLoadMore }) => ({
-      showLoadMore: !showLoadMore,
-    }));
+    prevInputValueRef.current = inputValue;
+    prevPageRef.current = page;
+    prevImagesRef.current = images;
+  }, [images, inputValue, page]);
+
+  /////////////////////////////////////////////
+
+  const handleSubmit = searchValue => {
+    setInputValue(searchValue);
+    setLoading(true);
+    setImages([]);
+    setPage(1);
   };
 
-  handleSubmit = searchValue => {
-    console.log('searchValue', searchValue);
-    this.setState({
-      inputValue: searchValue,
-      loading: true,
-      images: [],
-      page: 1,
-      showLoadMore: false,
-    });
+  const toggleModal = () => {
+    setShowModal(!showModal);
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  const currentPhoto = largeImageURL => {
+    setLargeImageURL(largeImageURL);
+    toggleModal();
   };
 
-  currentPhoto = largeImageURL => {
-    this.setState({ largeImageURL: largeImageURL });
-    this.toggleModal();
+  const renderMore = async () => {
+    setPage(prevPageRef.current + 1);
+    setLoading(true);
   };
+  /////////////////////////////////////////////
 
-  renderMore = async () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-      // isLoading: true
-    }));
-  };
+  return (
+    <GeneralWrap>
+      <Searchbar onSubmit={handleSubmit} />
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+      {loading && <Loader />}
 
-  render() {
-    const {
-      loading,
-      images,
-      showModal,
-      largeImageURL,
-      totalPhotos,
-      showLoadMore,
-    } = this.state;
+      <ImageGallery images={images} onClick={currentPhoto} />
 
-    return (
-      <div className={css.app}>
-        <Searchbar onSubmit={this.handleSubmit} />
-        <ToastContainer
-          position="top-right"
-          autoClose={4000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
-        {loading && <Loader />}
+      {images.length < totalPhotos && (
+        <Button onClick={renderMore}>Load more</Button>
+      )}
 
-        <ImageGallery images={images} onClick={this.currentPhoto} />
-
-        {totalPhotos > images.length && showLoadMore && (
-          <Button onClick={this.renderMore}>Load more</Button>
-        )}
-
-        {showModal && (
-          <Modal
-            onClose={this.toggleModal}
-            largeImageURL={largeImageURL}
-          ></Modal>
-        )}
-      </div>
-    );
-  }
+      {showModal && (
+        <Modal onClose={toggleModal} largeImageURL={largeImageURL}></Modal>
+      )}
+    </GeneralWrap>
+  );
 }
-
-export default App;
