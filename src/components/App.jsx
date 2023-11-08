@@ -15,19 +15,14 @@ export default function App() {
   const [inputValue, setInputValue] = useState(''); // значение ввода инпута
   const [loading, setLoading] = useState(false); // статус отображения загружчика
   const [images, setImages] = useState([]); // данные из Api
-  const [error, setError] = useState(null); // статус ошибки
   const [showModal, setShowModal] = useState(false); // статус отображения модалки
   const [largeImageURL, setLargeImageURL] = useState(0); // id выбранного фото
   const [totalPhotos, setTotalPhotos] = useState(0); // всего фото в коллекции
   const [page, setPage] = useState(1); // страница загрузки с Api
 
-  /////////////////////////////////////////////
-
   const prevInputValueRef = useRef();
   const prevPageRef = useRef();
   const prevImagesRef = useRef();
-
-  /////////////////////////////////////////////
 
   useEffect(() => {
     if (inputValue === '') {
@@ -41,7 +36,6 @@ export default function App() {
         .then(data => {
           setTotalPhotos(data.total);
           if (data.total < 1) {
-            setError(true);
             toast.info('УПС! 🫤 Відсутні фото за Вашим пошуком 🤷🏻');
           } else {
             setImages([...prevImagesRef.current, ...data.hits]);
@@ -52,19 +46,15 @@ export default function App() {
         .catch(error => {
           console.log(error);
           console.error('There was a problem with the fetch operation:', error);
-          setError({ error });
         })
         .finally(() => {
           setLoading(false);
         });
-    } else {
     }
     prevInputValueRef.current = inputValue;
     prevPageRef.current = page;
     prevImagesRef.current = images;
   }, [images, inputValue, page]);
-
-  /////////////////////////////////////////////
 
   const handleSubmit = searchValue => {
     setInputValue(searchValue);
@@ -86,7 +76,6 @@ export default function App() {
     setPage(prevPageRef.current + 1);
     setLoading(true);
   };
-  /////////////////////////////////////////////
 
   return (
     <GeneralWrap>

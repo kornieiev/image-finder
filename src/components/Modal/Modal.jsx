@@ -5,8 +5,6 @@ import { Overlay, ModalBox } from './Modal.styled';
 const modalRoot = document.querySelector('#modal-root');
 
 export default function Modal(props) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleBackDropClick = e => {
     if (e.currentTarget === e.target) {
       props.onClose();
@@ -19,7 +17,7 @@ export default function Modal(props) {
         props.onClose();
       }
     };
-    if (!isModalOpen) {
+    if (props) {
       window.addEventListener('keydown', handleKeyDown);
     } else {
       window.removeEventListener('keydown', handleKeyDown);
@@ -27,7 +25,7 @@ export default function Modal(props) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isModalOpen, props]);
+  }, [props]);
 
   const { largeImageURL } = props;
 
