@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Loader from 'components/Loader/Loader';
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -16,45 +16,35 @@ export default function App() {
   const [loading, setLoading] = useState(false); // статус отображения загружчика
   const [images, setImages] = useState([]); // данные из Api
   const [showModal, setShowModal] = useState(false); // статус отображения модалки
-  const [largeImageURL, setLargeImageURL] = useState(0); // id выбранного фото
+  const [largeImageURL, setLargeImageURL] = useState(''); // id выбранного фото
   const [totalPhotos, setTotalPhotos] = useState(0); // всего фото в коллекции
   const [page, setPage] = useState(1); // страница загрузки с Api
 
-  const prevInputValueRef = useRef();
-  const prevPageRef = useRef();
-  const prevImagesRef = useRef();
-
   useEffect(() => {
-    if (inputValue === '') {
+    if (!inputValue) {
       return;
-    } else if (
-      inputValue !== prevInputValueRef.current ||
-      page !== prevPageRef.current
-    ) {
-      setLoading(true);
-      fetchPhotos(inputValue, page)
-        .then(data => {
-          setTotalPhotos(data.total);
-          if (data.total < 1) {
-            toast.info('УПС! 🫤 Відсутні фото за Вашим пошуком 🤷🏻');
-          } else {
-            setImages([...prevImagesRef.current, ...data.hits]);
-            setTotalPhotos(data.total);
-            setLoading(false);
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          console.error('There was a problem with the fetch operation:', error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
     }
-    prevInputValueRef.current = inputValue;
-    prevPageRef.current = page;
-    prevImagesRef.current = images;
-  }, [images, inputValue, page]);
+
+    setLoading(true);
+    fetchPhotos(inputValue, page)
+      .then(data => {
+        setTotalPhotos(data.total);
+        if (data.total < 1) {
+          toast.info('УПС! 🫤 Відсутні фото за Вашим пошуком 🤷🏻');
+        } else {
+          setImages(prevImages => [...prevImages, ...data.hits]);
+          setTotalPhotos(data.total);
+          setLoading(false);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        console.error('There was a problem with the fetch operation:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [inputValue, page]);
 
   const handleSubmit = searchValue => {
     setInputValue(searchValue);
@@ -73,8 +63,8 @@ export default function App() {
   };
 
   const renderMore = async () => {
-    setPage(prevPageRef.current + 1);
     setLoading(true);
+    setPage(page + 1);
   };
 
   return (
