@@ -69,7 +69,11 @@ export default function App() {
 
   return (
     <GeneralWrap>
-      <Searchbar onSubmit={handleSubmit} />
+      <Searchbar
+        onSubmit={handleSubmit}
+        totalPhotos={totalPhotos}
+        showedPhotos={images.length}
+      />
       <ToastContainer
         position="top-right"
         autoClose={4000}

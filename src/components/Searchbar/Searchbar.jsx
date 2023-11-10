@@ -7,9 +7,10 @@ import {
   SubmitButton,
   InputBox,
   Icon,
+  NumberInfo,
 } from './Searchbar.styled';
 
-export default function Searchbar({ onSubmit }) {
+export default function Searchbar({ onSubmit, totalPhotos, showedPhotos }) {
   const [query, setQuery] = useState('');
 
   const handleChange = e => {
@@ -44,6 +45,16 @@ export default function Searchbar({ onSubmit }) {
           onChange={handleChange}
         />
       </SearchForm>
+      {totalPhotos > 0 && (
+        <div>
+          <NumberInfo>
+            Total photos: <span>{totalPhotos}</span>
+          </NumberInfo>
+          <NumberInfo>
+            Showed photos: <span>{showedPhotos}</span>
+          </NumberInfo>
+        </div>
+      )}
     </Search>
   );
 }

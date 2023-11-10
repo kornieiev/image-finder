@@ -24,7 +24,7 @@ export const SearchForm = styled.form`
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 400px;
   background-color: #fff;
   border-radius: 3px;
   overflow: hidden;
@@ -85,4 +85,10 @@ export const Icon = styled(MdImageSearch)`
     color: #3f51b5;
     opacity: 1;
   }
+`;
+
+export const NumberInfo = styled.p`
+  padding: 5px;
+  margin: 0px;
+  font-size: 10px;
 `;
