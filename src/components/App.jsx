@@ -12,7 +12,7 @@ import fetchPhotos from '../components/services/searchPhoto-api';
 import { GeneralWrap } from './App.styled';
 
 export default function App() {
-  const [inputValue, setInputValue] = useState(''); // значение ввода инпута
+  const [query, setquery] = useState(''); // значение ввода инпута
   const [loading, setLoading] = useState(false); // статус отображения загружчика
   const [images, setImages] = useState([]); // данные из Api
   const [showModal, setShowModal] = useState(false); // статус отображения модалки
@@ -21,12 +21,11 @@ export default function App() {
   const [page, setPage] = useState(1); // страница загрузки с Api
 
   useEffect(() => {
-    if (!inputValue) {
+    if (!query) {
       return;
     }
-
     setLoading(true);
-    fetchPhotos(inputValue, page)
+    fetchPhotos(query, page)
       .then(data => {
         setTotalPhotos(data.total);
         if (data.total < 1) {
@@ -44,10 +43,11 @@ export default function App() {
       .finally(() => {
         setLoading(false);
       });
-  }, [inputValue, page]);
+  }, [query, page]);
 
-  const handleSubmit = searchValue => {
-    setInputValue(searchValue);
+  const handleSubmit = newQuery => {
+    // setquery(newQuery);
+    setquery(`${Date.now()}/${newQuery}`);
     setLoading(true);
     setImages([]);
     setPage(1);
